@@ -21,6 +21,9 @@ ${Z_{noise}}[i] = Z[i] + r\cdot{\sigma}$
 </gazebo>
 ```
 
+# Result of depth noise
+
+https://github.com/user-attachments/assets/88046a19-1d45-4148-ad40-7ddf8da226eb
 
 ## References
 

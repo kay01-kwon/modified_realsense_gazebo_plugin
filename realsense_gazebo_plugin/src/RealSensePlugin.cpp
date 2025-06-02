@@ -478,8 +478,8 @@ void RealSensePlugin::OnNewDepthFrame() {
       // Add noise to depth data
       float std_dev = noiseBase_ + noiseScale_*(depthDataFloat[i] * depthDataFloat[i]);
       
-      float noise = noiseDist_(gen_) * std_dev;
-      this->depthMap[i] = (uint16_t)((depthDataFloat[i] + noise)/ DEPTH_SCALE_M);
+      noise_ = noiseDist_(gen_) * std_dev;
+      this->depthMap[i] = (uint16_t)((depthDataFloat[i] + noise_)/ DEPTH_SCALE_M);
     }
   }
 

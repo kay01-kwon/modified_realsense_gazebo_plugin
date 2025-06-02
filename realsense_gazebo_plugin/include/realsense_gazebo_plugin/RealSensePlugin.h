@@ -142,6 +142,7 @@ protected:
 
   float noiseBase_;
   float noiseScale_;
+  float noise_;
 
 };
 }
