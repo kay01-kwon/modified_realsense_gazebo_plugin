@@ -29,6 +29,79 @@
 using namespace gazebo;
 
 /////////////////////////////////////////////////
+std::ostream &print_param(std::ostream &os,
+const std::string &param_name,
+const double param_value,
+const bool is_default)
+{
+  if(is_default)
+  {
+    os << "[RealsensePlugin] " << param_name << " not set, using default: "
+       << param_value << std::endl;
+  }
+  else
+  {
+    os << "[RealsensePlugin] " << param_name << ": " << param_value << std::endl;
+  }
+
+  return os;
+}
+
+std::ostream &print_param(std::ostream &os,
+const std::string &param_name,
+const float param_value,
+const bool is_default)
+{
+  if(is_default)
+  {
+    os << "[RealsensePlugin] " << param_name << " not set, using default: "
+       << param_value << std::endl;
+  }
+  else
+  {
+    os << "[RealsensePlugin] " << param_name << ": " << param_value << std::endl;
+  }
+
+  return os;
+}
+
+std::ostream &print_param(std::ostream &os,
+const std::string &param_name,
+const bool param_value,
+const bool is_default)
+{
+  if(is_default)
+  {
+    os << "[RealsensePlugin] " << param_name << " not set, using default: "
+       << std::boolalpha << param_value << std::endl;
+  }
+  else
+  {
+    os << "[RealsensePlugin] " << param_name << ": " << std::boolalpha
+       << param_value << std::endl;
+  }
+  return os;
+}
+
+std::ostream &print_param(std::ostream &os,
+const std::string &param_name,
+const std::string &param_value,
+const bool is_default)
+{
+  if(is_default)
+  {
+    os << "[RealsensePlugin] " << param_name << " not set, using default: "
+       << param_value << std::endl;
+  }
+  else
+  {
+    os << "[RealsensePlugin] " << param_name << ": " << param_value << std::endl;
+  }
+  return os;
+}
+
+
+/////////////////////////////////////////////////
 RealSensePlugin::RealSensePlugin() {
   this->depthCam = nullptr;
   this->ired1Cam = nullptr;
@@ -54,290 +127,298 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
   cameraParamsMap_.insert(std::make_pair(IRED1_CAMERA_NAME, CameraParams()));
   cameraParamsMap_.insert(std::make_pair(IRED2_CAMERA_NAME, CameraParams()));
 
+  printf("************************************************\n");
+  printf("RealSensePlugin: Loading parameters from SDF\n");
+
   if(!_sdf->HasElement("depthUpdateRate"))
   {
     this->depthUpdateRate_ = 30.0;
-    printf("Depth Update Rate not set, using default: %f\n", this->depthUpdateRate_);
+    print_param(std::cout, "Depth Update Rate", this->depthUpdateRate_, true);
   }
   else{
-    _sdf->GetElement("depthUpdateRate")->GetValue()->Get(this->depthUpdateRate_);
-    printf("Depth Update Rate: %f\n", this->depthUpdateRate_);
+    this->depthUpdateRate_ =
+     _sdf->Get<double>("depthUpdateRate");
+    print_param(std::cout, "Depth Update Rate", this->depthUpdateRate_, false);
   }
 
   if(!_sdf->HasElement("colorUpdateRate"))
   {
     this->colorUpdateRate_ = 30.0;
-    printf("Color Update Rate not set, using default: %f\n", this->colorUpdateRate_);
+    print_param(std::cout, "Color Update Rate", this->colorUpdateRate_, true);
   }
   else{
-    _sdf->GetElement("colorUpdateRate")->GetValue()->Get(this->colorUpdateRate_);
-    printf("Color Update Rate: %f\n", this->colorUpdateRate_);
+    this->colorUpdateRate_ = 
+    _sdf->Get<double>("colorUpdateRate");
+    print_param(std::cout, "Color Update Rate", this->colorUpdateRate_, false);
   }
 
   if(!_sdf->HasElement("infraredUpdateRate"))
   {
     this->infraredUpdateRate_ = 30.0;
-    printf("Infrared Update Rate not set, using default: %f\n", this->infraredUpdateRate_);
+    print_param(std::cout, "Infrared Update Rate", this->infraredUpdateRate_, true);
   }
   else{
-    _sdf->GetElement("infraredUpdateRate")->GetValue()->Get(this->infraredUpdateRate_);
-    printf("Infrared Update Rate: %f\n", this->infraredUpdateRate_);
+    this->infraredUpdateRate_ = 
+    _sdf->Get<double>("infraredUpdateRate");
+    print_param(std::cout, "Infrared Update Rate", this->infraredUpdateRate_, false);
   }
 
   if(!_sdf->HasElement("depthTopicName"))
   {
     cameraParamsMap_[DEPTH_CAMERA_NAME].topic_name = "/camera/depth/image_rect_raw";
-    printf("Depth Topic Name not set, using default: %s\n",
-           cameraParamsMap_[DEPTH_CAMERA_NAME].topic_name.c_str());
+    print_param(std::cout, "Depth Topic Name",
+                cameraParamsMap_[DEPTH_CAMERA_NAME].topic_name, true);
   }
   else{
-    _sdf->GetElement("depthTopicName")->GetValue()->Get(
+    _sdf->GetElement("depthTopicName")->GetValue()->Get<std::string>(
         cameraParamsMap_[DEPTH_CAMERA_NAME].topic_name);
-    printf("Depth Topic Name: %s\n",
-           cameraParamsMap_[DEPTH_CAMERA_NAME].topic_name.c_str());
+    print_param(std::cout, "Depth Topic Name",
+                cameraParamsMap_[DEPTH_CAMERA_NAME].topic_name, false);
   }
 
   if(!_sdf->HasElement("depthCameraInfoTopicName"))
   {
     cameraParamsMap_[DEPTH_CAMERA_NAME].camera_info_topic_name =
         "/camera/depth/camera_info";
-    printf("Depth Camera Info Topic Name not set, using default: %s\n",
-           cameraParamsMap_[DEPTH_CAMERA_NAME].camera_info_topic_name.c_str());
+    print_param(std::cout, "Depth Camera Info Topic Name",
+                cameraParamsMap_[DEPTH_CAMERA_NAME].camera_info_topic_name, true);
   }
   else{
-    _sdf->GetElement("depthCameraInfoTopicName")->GetValue()->Get(
+    _sdf->GetElement("depthCameraInfoTopicName")->GetValue()->Get<std::string>(
         cameraParamsMap_[DEPTH_CAMERA_NAME].camera_info_topic_name);
-    printf("Depth Camera Info Topic Name: %s\n",
-           cameraParamsMap_[DEPTH_CAMERA_NAME].camera_info_topic_name.c_str());
+    print_param(std::cout, "Depth Camera Info Topic Name",
+                cameraParamsMap_[DEPTH_CAMERA_NAME].camera_info_topic_name, false);
   }
 
   if(!_sdf->HasElement("colorTopicName"))
   {
     cameraParamsMap_[COLOR_CAMERA_NAME].topic_name = "/camera/color/image_rect_raw";
-    printf("Color Topic Name not set, using default: %s\n",
-           cameraParamsMap_[COLOR_CAMERA_NAME].topic_name.c_str());
+    print_param(std::cout, "Color Topic Name",
+                cameraParamsMap_[COLOR_CAMERA_NAME].topic_name, true);
   }
   else{
-    _sdf->GetElement("colorTopicName")->GetValue()->Get(
+    _sdf->GetElement("colorTopicName")->GetValue()->Get<std::string>(
         cameraParamsMap_[COLOR_CAMERA_NAME].topic_name);
-    printf("Color Topic Name: %s\n",
-           cameraParamsMap_[COLOR_CAMERA_NAME].topic_name.c_str());
+    print_param(std::cout, "Color Topic Name",
+                cameraParamsMap_[COLOR_CAMERA_NAME].topic_name, false);
   }
 
   if(!_sdf->HasElement("colorCameraInfoTopicName"))
   {
     cameraParamsMap_[COLOR_CAMERA_NAME].camera_info_topic_name =
         "/camera/color/camera_info";
-    printf("Color Camera Info Topic Name not set, using default: %s\n",
-           cameraParamsMap_[COLOR_CAMERA_NAME].camera_info_topic_name.c_str());
+    print_param(std::cout, "Color Camera Info Topic Name",
+                cameraParamsMap_[COLOR_CAMERA_NAME].camera_info_topic_name, true);
   }
   else{
-    _sdf->GetElement("colorCameraInfoTopicName")->GetValue()->Get(
+    _sdf->GetElement("colorCameraInfoTopicName")->GetValue()->Get<std::string>(
         cameraParamsMap_[COLOR_CAMERA_NAME].camera_info_topic_name);
-    printf("Color Camera Info Topic Name: %s\n",
-           cameraParamsMap_[COLOR_CAMERA_NAME].camera_info_topic_name.c_str());
+    print_param(std::cout, "Color Camera Info Topic Name",
+                cameraParamsMap_[COLOR_CAMERA_NAME].camera_info_topic_name, false);
   }
 
   if(!_sdf->HasElement("infrared1TopicName"))
   {
     cameraParamsMap_[IRED1_CAMERA_NAME].topic_name = "/camera/infra1/image_rect_raw";
-    printf("Infrared1 Topic Name not set, using default: %s\n",
-           cameraParamsMap_[IRED1_CAMERA_NAME].topic_name.c_str());
+    print_param(std::cout, "Infrared1 Topic Name",
+                cameraParamsMap_[IRED1_CAMERA_NAME].topic_name, true);
   }
   else{
-    _sdf->GetElement("infrared1TopicName")->GetValue()->Get(
+    _sdf->GetElement("infrared1TopicName")->GetValue()->Get<std::string>(
         cameraParamsMap_[IRED1_CAMERA_NAME].topic_name);
-    printf("Infrared1 Topic Name: %s\n",
-           cameraParamsMap_[IRED1_CAMERA_NAME].topic_name.c_str());
+    print_param(std::cout, "Infrared1 Topic Name",
+                cameraParamsMap_[IRED1_CAMERA_NAME].topic_name, false);
   }
 
   if(!_sdf->HasElement("infrared1CameraInfoTopicName"))
   {
     cameraParamsMap_[IRED1_CAMERA_NAME].camera_info_topic_name =
         "/camera/infra1/camera_info";
-    printf("Infrared1 Camera Info Topic Name not set, using default: %s\n",
-           cameraParamsMap_[IRED1_CAMERA_NAME].camera_info_topic_name.c_str());
+    print_param(std::cout, "Infrared1 Camera Info Topic Name",
+                cameraParamsMap_[IRED1_CAMERA_NAME].camera_info_topic_name, true);
   }
   else{
-    _sdf->GetElement("infrared1CameraInfoTopicName")->GetValue()->Get(
+    _sdf->GetElement("infrared1CameraInfoTopicName")->GetValue()->Get<std::string>(
         cameraParamsMap_[IRED1_CAMERA_NAME].camera_info_topic_name);
-    printf("Infrared1 Camera Info Topic Name: %s\n",
-           cameraParamsMap_[IRED1_CAMERA_NAME].camera_info_topic_name.c_str());
+    print_param(std::cout, "Infrared1 Camera Info Topic Name",
+                cameraParamsMap_[IRED1_CAMERA_NAME].camera_info_topic_name, false);
   }
 
   if(!_sdf->HasElement("infrared2TopicName"))
   {
     cameraParamsMap_[IRED2_CAMERA_NAME].topic_name = "/camera/infra2/image_rect_raw";
-    printf("Infrared2 Topic Name not set, using default: %s\n",
-           cameraParamsMap_[IRED2_CAMERA_NAME].topic_name.c_str());
+    print_param(std::cout, "Infrared2 Topic Name",
+                cameraParamsMap_[IRED2_CAMERA_NAME].topic_name, true);
   }
   else{
-    _sdf->GetElement("infrared2TopicName")->GetValue()->Get(
+    _sdf->GetElement("infrared2TopicName")->GetValue()->Get<std::string>(
         cameraParamsMap_[IRED2_CAMERA_NAME].topic_name);
-    printf("Infrared2 Topic Name: %s\n",
-           cameraParamsMap_[IRED2_CAMERA_NAME].topic_name.c_str());
+    print_param(std::cout, "Infrared2 Topic Name",
+                cameraParamsMap_[IRED2_CAMERA_NAME].topic_name, false);
   }
 
   if(!_sdf->HasElement("infrared2CameraInfoTopicName"))
   {
     cameraParamsMap_[IRED2_CAMERA_NAME].camera_info_topic_name =
         "/camera/infra2/camera_info";
-    printf("Infrared2 Camera Info Topic Name not set, using default: %s\n",
-           cameraParamsMap_[IRED2_CAMERA_NAME].camera_info_topic_name.c_str());
+    print_param(std::cout, "Infrared2 Camera Info Topic Name",
+                cameraParamsMap_[IRED2_CAMERA_NAME].camera_info_topic_name, true);
   }
   else{
-    _sdf->GetElement("infrared2CameraInfoTopicName")->GetValue()->Get(
+    _sdf->GetElement("infrared2CameraInfoTopicName")->GetValue()->Get<std::string>(
         cameraParamsMap_[IRED2_CAMERA_NAME].camera_info_topic_name);
-    printf("Infrared2 Camera Info Topic Name: %s\n",
-           cameraParamsMap_[IRED2_CAMERA_NAME].camera_info_topic_name.c_str());
+    print_param(std::cout, "Infrared2 Camera Info Topic Name",
+                cameraParamsMap_[IRED2_CAMERA_NAME].camera_info_topic_name, false);
   }
 
   if(!_sdf->HasElement("colorOpticalframeName"))
   {
     cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame = "camera_color_optical_frame";
-    printf("Color Optical Frame not set, using default: %s\n",
-           cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame.c_str());
+    print_param(std::cout, "Color Optical Frame",
+                cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame, true);
   }
   else{
-    _sdf->GetElement("colorOpticalframeName")->GetValue()->Get(
+    _sdf->GetElement("colorOpticalframeName")->GetValue()->Get<std::string>(
         cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame);
-    printf("Color Optical Frame: %s\n",
-           cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame.c_str());
+    print_param(std::cout, "Color Optical Frame",
+                cameraParamsMap_[COLOR_CAMERA_NAME].optical_frame, false);
   }
 
   if(!_sdf->HasElement("depthOpticalframeName"))
   {
     cameraParamsMap_[DEPTH_CAMERA_NAME].optical_frame = "camera_depth_optical_frame";
-    printf("Depth Optical Frame not set, using default: %s\n",
-           cameraParamsMap_[DEPTH_CAMERA_NAME].optical_frame.c_str());
+    print_param(std::cout, "Depth Optical Frame",
+                cameraParamsMap_[DEPTH_CAMERA_NAME].optical_frame, true);
   }
   else{
-    _sdf->GetElement("depthOpticalframeName")->GetValue()->Get(
+    _sdf->GetElement("depthOpticalframeName")->GetValue()->Get<std::string>(
         cameraParamsMap_[DEPTH_CAMERA_NAME].optical_frame);
-    printf("Depth Optical Frame: %s\n",
-           cameraParamsMap_[DEPTH_CAMERA_NAME].optical_frame.c_str());
+    print_param(std::cout, "Depth Optical Frame",
+                cameraParamsMap_[DEPTH_CAMERA_NAME].optical_frame, false);
   }
 
   if(!_sdf->HasElement("infrared1OpticalframeName"))
   {
     cameraParamsMap_[IRED1_CAMERA_NAME].optical_frame = "camera_infra1_optical_frame";
-    printf("Infrared1 Optical Frame not set, using default: %s\n",
-           cameraParamsMap_[IRED1_CAMERA_NAME].optical_frame.c_str());
+    print_param(std::cout, "Infrared1 Optical Frame",
+                cameraParamsMap_[IRED1_CAMERA_NAME].optical_frame, true);
   }
   else{
     _sdf->GetElement("infrared1OpticalframeName")->GetValue()->Get(
         cameraParamsMap_[IRED1_CAMERA_NAME].optical_frame);
-    printf("Infrared1 Optical Frame: %s\n",
-           cameraParamsMap_[IRED1_CAMERA_NAME].optical_frame.c_str());
+    print_param(std::cout, "Infrared1 Optical Frame",
+                cameraParamsMap_[IRED1_CAMERA_NAME].optical_frame, false);
   }
 
   if(!_sdf->HasElement("infrared2OpticalframeName"))
   {
     cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame = "camera_infra2_optical_frame";
-    printf("Infrared2 Optical Frame not set, using default: %s\n",
-           cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame.c_str());
+    print_param(std::cout, "Infrared2 Optical Frame",
+                cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame, true);
   }
   else{
     _sdf->GetElement("infrared2OpticalframeName")->GetValue()->Get(
         cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame);
-    printf("Infrared2 Optical Frame: %s\n",
-           cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame.c_str());
+    print_param(std::cout, "Infrared2 Optical Frame",
+                cameraParamsMap_[IRED2_CAMERA_NAME].optical_frame, false);
   }
 
   if(!_sdf->HasElement("rangeMinDepth"))
   {
-    this->rangeMinDepth_ = 0.020;
-    printf("Range Min Depth not set, using default: %f\n", this->rangeMinDepth_);
+    this->rangeMinDepth_ = 0.020f;
+    print_param(std::cout, "Range Min Depth", this->rangeMinDepth_, true);
   }
   else{
-    _sdf->GetElement("rangeMinDepth")->GetValue()->Get(this->rangeMinDepth_);
-    printf("Range Min Depth: %f\n", this->rangeMinDepth_);
+    _sdf->GetElement("rangeMinDepth")->GetValue()->Get<float>(this->rangeMinDepth_);
+    print_param(std::cout, "Range Min Depth", this->rangeMinDepth_, false);
   }
 
   if (!_sdf->HasElement("rangeMaxDepth"))
   {
-    this->rangeMaxDepth_ = 10.0;
-    printf("Range Max Depth not set, using default: %f\n", this->rangeMaxDepth_);
+    this->rangeMaxDepth_ = 10.0f;
+    print_param(std::cout, "Range Max Depth", this->rangeMaxDepth_, true);
   }
   else{
-    _sdf->GetElement("rangeMaxDepth")->GetValue()->Get(this->rangeMaxDepth_);
-    printf("Range Max Depth: %f\n", this->rangeMaxDepth_);
+    _sdf->GetElement("rangeMaxDepth")->GetValue()->Get<float>(this->rangeMaxDepth_);
+    print_param(std::cout, "Range Max Depth", this->rangeMaxDepth_, false);
   }
 
   if(!_sdf->HasElement("pointCloud"))
   {
     this->pointCloud_ = false;
-    printf("Point Cloud not set, using default: %d\n", this->pointCloud_);
+    print_param(std::cout, "Point Cloud", this->pointCloud_, true);
   }
   else{
     _sdf->GetElement("pointCloud")->GetValue()->Get(this->pointCloud_);
-    printf("Point Cloud: %d\n", this->pointCloud_);
+    print_param(std::cout, "Point Cloud", this->pointCloud_, false);
   }
 
   if(!_sdf->HasElement("pointCloudTopicName"))
   {
     this->pointCloudTopic_ = "/camera/color/points";
-    printf("Point Cloud Topic Name not set, using default: %s\n",
-           this->pointCloudTopic_.c_str());
+    print_param(std::cout, "Point Cloud Topic Name",
+                this->pointCloudTopic_, true);
   }
   else{
     _sdf->GetElement("pointCloudTopicName")->GetValue()->Get(
         this->pointCloudTopic_);
-    printf("Point Cloud Topic Name: %s\n",
-           this->pointCloudTopic_.c_str());
+    print_param(std::cout, "Point Cloud Topic Name",
+                this->pointCloudTopic_, false);
   }
 
   if(!_sdf->HasElement("pointCloudCutoff"))
   {
     this->pointCloudCutOff_ = 0.5;
-    printf("Point Cloud Cutoff not set, using default: %f\n", this->pointCloudCutOff_);
+    print_param(std::cout, "Point Cloud Cutoff",
+                this->pointCloudCutOff_, true);
   }
   else{
-    _sdf->GetElement("pointCloudCutoff")->GetValue()->Get(this->pointCloudCutOff_);
-    printf("Point Cloud Cutoff: %f\n", this->pointCloudCutOff_);
+    _sdf->GetElement("pointCloudCutoff")->GetValue()->Get<double>(this->pointCloudCutOff_);
+    print_param(std::cout, "Point Cloud Cutoff",
+                this->pointCloudCutOff_, false);
   }
 
   if(!_sdf->HasElement("pointCloudCutoffMax"))
   {
     this->pointCloudCutOffMax_ = 5.0;
-    printf("Point Cloud Cutoff Max not set, using default: %f\n",
-           this->pointCloudCutOffMax_);
+    print_param(std::cout, "Point Cloud Cutoff Max",
+                this->pointCloudCutOffMax_, true);
   }
   else{
-    _sdf->GetElement("pointCloudCutoffMax")->GetValue()->Get(
+    _sdf->GetElement("pointCloudCutoffMax")->GetValue()->Get<double>(
         this->pointCloudCutOffMax_);
-    printf("Point Cloud Cutoff Max: %f\n",
-           this->pointCloudCutOffMax_);
+    print_param(std::cout, "Point Cloud Cutoff Max",
+                this->pointCloudCutOffMax_, false);
   }
 
   if(!_sdf->HasElement("noiseBase"))
   {
     this->noiseBase_ = 0.003;
-    printf("Noise Base not set, using default: %f\n", this->noiseBase_);
+    print_param(std::cout, "Noise Base", this->noiseBase_, true);
   }
   else{
-    _sdf->GetElement("noiseBase")->GetValue()->Get(this->noiseBase_);
-    printf("Noise Base: %f\n", this->noiseBase_);
+    _sdf->GetElement("noiseBase")->GetValue()->Get<float>(this->noiseBase_);
+    print_param(std::cout, "Noise Base", this->noiseBase_, false);
   }
 
   if(!_sdf->HasElement("noiseScale"))
   {
     this->noiseScale_ = 0.001;
-    printf("Noise Scale not set, using default: %f\n", this->noiseScale_);
+    print_param(std::cout, "Noise Scale", this->noiseScale_, true);
   }
   else{
-    _sdf->GetElement("noiseScale")->GetValue()->Get(this->noiseScale_);
-    printf("Noise Scale: %f\n", this->noiseScale_);
+    _sdf->GetElement("noiseScale")->GetValue()->Get<float>(this->noiseScale_);
+    print_param(std::cout, "Noise Scale", this->noiseScale_, false);
   }
 
   if(!_sdf->HasElement("prefix"))
   {
     this->prefix = _model->GetName() + "_";
-    printf("Prefix not set, using default: %s\n", this->prefix.c_str());
+    print_param(std::cout, "Prefix", this->prefix, true);
   }
   else{
     _sdf->GetElement("prefix")->GetValue()->Get(this->prefix);
-    printf("Prefix: %s\n", this->prefix.c_str());
+    print_param(std::cout, "Prefix", this->prefix, false);
   }
 
   // Store a pointer to the this model
@@ -345,6 +426,10 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
 
   // Store a pointer to the world
   this->world = this->rsModel->GetWorld();
+
+  std::cout
+      << "RealSensePlugin: Model name: " << this->rsModel->GetName() 
+      << std::endl;
 
   // Sensors Manager
   sensors::SensorManager *smanager = sensors::SensorManager::Instance();

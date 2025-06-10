@@ -24,6 +24,7 @@
 #include <gazebo/rendering/DepthCamera.hh>
 #include <gazebo/sensors/sensors.hh>
 #include <sdf/sdf.hh>
+#include <iostream>
 
 #include <memory>
 #include <string>
@@ -47,6 +48,28 @@ struct CameraParams {
 class RealSensePlugin : public ModelPlugin {
   /// \brief Constructor.
 public:
+
+  friend std::ostream &print_param(std::ostream& os, 
+  const std::string &param_name,
+  const double param_value,
+  const bool is_default);
+
+  friend std::ostream &print_param(std::ostream& os,
+  const std::string &param_name,
+  const float param_value,
+  const bool is_default);
+
+  friend std::ostream &print_param(std::ostream& os,
+  const std::string &param_name,
+  const bool param_value,
+  const bool is_default);
+
+
+  friend std::ostream &print_param(std::ostream& os,
+  const std::string &param_name,
+  const std::string &param_value,
+  const bool is_default);
+
   RealSensePlugin();
 
   /// \brief Destructor.

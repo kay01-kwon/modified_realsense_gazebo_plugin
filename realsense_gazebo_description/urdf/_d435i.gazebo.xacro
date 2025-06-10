@@ -99,7 +99,7 @@ This is the Gazebo URDF model for the Intel RealSense D435i camera
           <noise>
             <type>gaussian</type>
             <mean>0.0</mean>
-            <stddev>0.05</stddev>
+            <stddev>0.005</stddev>
           </noise>
         </camera>
         <always_on>1</always_on>
@@ -225,7 +225,6 @@ This is the Gazebo URDF model for the Intel RealSense D435i camera
     <gazebo>
       <plugin name="${topics_ns}" filename="librealsense_gazebo_plugin.so">
         <prefix>${camera_name}</prefix>
-
         <!-- Color camera settings -->
       	<colorUpdateRate>${color_fps}</colorUpdateRate>
       	<colorTopicName>color/image_raw</colorTopicName>

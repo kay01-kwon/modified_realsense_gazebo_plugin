@@ -139,38 +139,43 @@ bool gazebo::GazeboRosAccelSensor::LoadParameters()
   if (sdf->HasElement("robotNamespace"))
   {
     robot_namespace =  sdf->Get<std::string>("robotNamespace") +"/";
-    ROS_INFO_STREAM("<robotNamespace> set to: "<<robot_namespace);
+    std::cout << "[Realsense Gazebo Plugin]";
+    std::cout << "Robot namespace: " << robot_namespace << std::endl;
   }
   else
   {
+    std::cout << "[Realsense Gazebo Plugin]";
     std::string scoped_name = sensor->ParentName();
     std::size_t it = scoped_name.find("::");
-
     robot_namespace = "/" +scoped_name.substr(0,it)+"/";
-    ROS_WARN_STREAM("missing <robotNamespace>, set to default: " << robot_namespace);
+    std::cout <<"missing <robotNamespace>, set to default: " << robot_namespace;
   }
 
   //TOPIC
   if (sdf->HasElement("topicName"))
   {
     topic_name =  robot_namespace + sdf->Get<std::string>("topicName");
-    ROS_INFO_STREAM("<topicName> set to: "<<topic_name);
+    std::cout << "[Realsense Gazebo Plugin]";
+    std::cout << "<topicName> set to: " << topic_name << std::endl;
   }
   else
   {
     topic_name = robot_namespace + "/accel/sample";
-    ROS_WARN_STREAM("missing <topicName>, set to /namespace/default: " << topic_name);
+    std::cout << "[Realsense Gazebo Plugin]";
+    std::cout << "missing <topicName>, set to default: " << topic_name << std::endl;
   }
 
   //BODY NAME
   if (sdf->HasElement("frameName"))
   {
     body_name =  sdf->Get<std::string>("frameName");
-    ROS_INFO_STREAM("<frameName> set to: "<<body_name);
+    std::cout << "[Realsense Gazebo Plugin]";
+    std::cout << "<frameName> set to: " << body_name << std::endl;
   }
   else
   {
-    ROS_FATAL("missing <frameName>, cannot proceed");
+    std::cout << "[Realsense Gazebo Plugin]";
+    std::cout << "missing <frameName>, cannot proceed." << std::endl;
     return false;
   }
 
@@ -178,48 +183,84 @@ bool gazebo::GazeboRosAccelSensor::LoadParameters()
   if (sdf->HasElement("updateRateHZ"))
   {
     update_rate =  sdf->Get<double>("updateRateHZ");
-    ROS_INFO_STREAM("<updateRateHZ> set to: " << update_rate);
+    std::cout << "[Realsense Gazebo Plugin]";
+    if (update_rate <= 0)
+    {
+      std::cout << "update rate set to 0, using default value: 30.0";
+      update_rate = 30.0;
+    }
+    else
+    {
+      std::cout << "<updateRateHZ> set to: " << update_rate;
+    }
   }
   else
   {
-    update_rate = 1.0;
-    ROS_WARN_STREAM("missing <updateRateHZ>, set to default: " << update_rate);
+    update_rate = 30.0;
+    std::cout << "[Realsense Gazebo Plugin]";
+    std::cout << "missing <updateRateHZ>, set to default: " << update_rate << std::endl;
   }
 
   //NOISE
   if (sdf->HasElement("gaussianNoise"))
   {
     gaussian_noise =  sdf->Get<double>("gaussianNoise");
-    ROS_INFO_STREAM("<gaussianNoise> set to: " << gaussian_noise);
+    std::cout << "[Realsense Gazebo Plugin]";
+    if (gaussian_noise < 0)
+    {
+      gaussian_noise = 0.0;
+      std::cout << "missing <gaussianNoise>, set to default: " 
+      << gaussian_noise << std::endl;
+    }
+    else
+    {
+      std::cout << "<gaussianNoise> set to: " << gaussian_noise << std::endl;
+    }
   }
   else
   {
-    gaussian_noise = 0.0;
-    ROS_WARN_STREAM("missing <gaussianNoise>, set to default: " << gaussian_noise);
+    gaussian_noise = 0.001;
+    std::cout << "[Realsense Gazebo Plugin]";
+    std::cout << "missing <gaussianNoise>, set to default: " << gaussian_noise << std::endl;
   }
 
   //POSITION OFFSET, UNUSED
   if (sdf->HasElement("xyzOffset"))
   {
     offset.Pos() =  sdf->Get<ignition::math::Vector3d>("xyzOffset");
-    ROS_INFO_STREAM("<xyzOffset> set to: " << offset.Pos()[0] << ' ' << offset.Pos()[1] << ' ' << offset.Pos()[2]);
+    std::cout << "[Realsense Gazebo Plugin]";
+    std::cout << "<xyzOffset> set to: " << offset.Pos()[0] 
+    << ' ' << offset.Pos()[1] 
+    << ' ' << offset.Pos()[2] << std::endl;
   }
   else
   {
     offset.Pos() = ignition::math::Vector3d(0, 0, 0);
-    ROS_WARN_STREAM("missing <xyzOffset>, set to default: " << offset.Pos()[0] << ' ' << offset.Pos()[1] << ' ' << offset.Pos()[2]);
+    std::cout << "[Realsense Gazebo Plugin]";
+    std::cout << "missing <xyzOffset>, set to default: "
+    << offset.Pos()[0] << ' ' 
+    << offset.Pos()[1] << ' ' 
+    << offset.Pos()[2] << std::endl;
   }
 
   //ORIENTATION OFFSET
   if (sdf->HasElement("rpyOffset"))
   {
     offset.Rot() = ignition::math::Quaterniond(sdf->Get<ignition::math::Vector3d>("rpyOffset"));
-    ROS_INFO_STREAM("<rpyOffset> set to: " << offset.Rot().Roll() << ' ' << offset.Rot().Pitch() << ' ' << offset.Rot().Yaw());
+    std::cout << "[Realsense Gazebo Plugin]";
+    std::cout << "<rpyOffset> set to: "
+    << offset.Rot().Roll() << ' '
+    << offset.Rot().Pitch() << ' '
+    << offset.Rot().Yaw() << std::endl;
   }
   else
   {
     offset.Rot() = ignition::math::Quaterniond::Identity;
-    ROS_WARN_STREAM("missing <rpyOffset>, set to default: " << offset.Rot().Roll() << ' ' << offset.Rot().Pitch() << ' ' << offset.Rot().Yaw());
+    std::cout << "[Realsense Gazebo Plugin]";
+    std::cout << "missing <rpyOffset>, set to default: "
+    << offset.Rot().Roll() << ' '
+    << offset.Rot().Pitch() << ' '
+    << offset.Rot().Yaw() << std::endl;
   }
 
   return true;

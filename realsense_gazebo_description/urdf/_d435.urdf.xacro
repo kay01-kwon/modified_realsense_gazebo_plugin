@@ -23,16 +23,16 @@ aluminum peripherial evaluation case.
                                           enable_pointCloud:=false
 
                                           clip_distance:=-1.0
-                                          depth_width:=1280
-                                          depth_height:=720
+                                          depth_width:=640
+                                          depth_height:=480
                                           depth_fps:=30
 
                                           infra_width:=640
                                           infra_height:=480
                                           infra_fps:=30
 
-                                          color_width:=1920
-                                          color_height:=1080
+                                          color_width:=640
+                                          color_height:=480
                                           color_fps:=30
 
                                           visualize:=false
@@ -57,6 +57,7 @@ aluminum peripherial evaluation case.
   	camera tripod mount -->
     <xacro:property name="d435_cam_depth_px" value="${d435_cam_mount_from_center_offset}"/>
     <xacro:property name="d435_cam_depth_py" value="0.0175"/>
+    <!-- <xacro:property name="d435_cam_depth_py" value="1.0"/> -->
     <xacro:property name="d435_cam_depth_pz" value="${d435_cam_height/2}"/>
 
     <material name="${name}_aluminum">
@@ -94,7 +95,7 @@ aluminum peripherial evaluation case.
       </collision>
       <inertial>
         <!-- The following are not reliable values, and should not be used for modeling -->
-        <mass value="1e-5"/>
+        <mass value="0.70"/>
         <origin xyz="0 0 0"/>
         <inertia ixx="1e-10" ixy="0.0" ixz="0.0" 
         iyy="1e-10" iyz="0.0" 
